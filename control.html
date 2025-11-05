@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>話しかけサインコントロール</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: sans-serif;
+      padding-top: 50px;
+      background: #f0f0f0;
+    }
+
+    button {
+      font-size: 1.5em;
+      margin: 20px;
+      padding: 20px 40px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      color: white;
+    }
+
+    #okBtn {
+      background-color: #2ecc71;
+    }
+
+    #ngBtn {
+      background-color: #e74c3c;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>話しかけサイン設定</h1>
+  <p>現在の状態を選んでください👇</p>
+  <button id="okBtn">🟢 話しかけOK</button>
+  <button id="ngBtn">🔴 話しかけNG</button>
+
+  <script type="module">
+    // Firebase SDKを読み込み
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+
+    // 🔧 Firebase設定を貼る
+    const firebaseConfig = {
+      apiKey: "AIzaSyBCBmEzgp94ik4BdrSW0gxN-JwtBHwdvVw",
+      authDomain: "kadaikenkyu-f09eb.firebaseapp.com",
+      databaseURL: "https://kadaikenkyu-f09eb-default-rtdb.firebaseio.com",
+      projectId: "kadaikenkyu-f09eb",
+      storageBucket: "kadaikenkyu-f09eb.firebasestorage.app",
+      messagingSenderId: "630288283837",
+      appId: "1:630288283837:web:bd2572959010b0e7c5dfd4",
+      measurementId: "G-J7WBZQVXSH"
+    };
+
+    // Firebaseを初期化
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // OKボタンを押したら「status」を"ok"に更新
+    document.getElementById("okBtn").onclick = () => {
+      set(ref(db, "status"), { value: "ok" });
+      alert("🟢 話しかけOKに設定しました！");
+    };
+
+    // NGボタンを押したら「status」を"ng"に更新
+    document.getElementById("ngBtn").onclick = () => {
+      set(ref(db, "status"), { value: "ng" });
+      alert("🔴 話しかけNGに設定しました！");
+    };
+  </script>
+</body>
+
+</html>

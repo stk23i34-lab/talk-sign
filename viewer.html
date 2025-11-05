@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>話しかけサイン表示</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: sans-serif;
+      margin-top: 100px;
+    }
+
+    .mark {
+      font-size: 150px;
+      display: none;
+    }
+
+    .ok {
+      color: green;
+    }
+
+    .ng {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>話しかけサイン</h1>
+  <div id="okMark" class="mark ok">⭕</div>
+  <div id="ngMark" class="mark ng">❌</div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBCBmEzgp94ik4BdrSW0gxN-JwtBHwdvVw",
+      authDomain: "kadaikenkyu-f09eb.firebaseapp.com",
+      databaseURL: "https://kadaikenkyu-f09eb-default-rtdb.firebaseio.com",
+      projectId: "kadaikenkyu-f09eb",
+      storageBucket: "kadaikenkyu-f09eb.firebasestorage.app",
+      messagingSenderId: "630288283837",
+      appId: "1:630288283837:web:bd2572959010b0e7c5dfd4",
+      measurementId: "G-J7WBZQVXSH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const okMark = document.getElementById("okMark");
+    const ngMark = document.getElementById("ngMark");
+
+    // Firebase上のstatusを監視
+    onValue(ref(db, "status/value"), (snapshot) => {
+      const val = snapshot.val();
+      if (val === "ok") {
+        okMark.style.display = "block";
+        ngMark.style.display = "none";
+      } else if (val === "ng") {
+        okMark.style.display = "none";
+        ngMark.style.display = "block";
+      }
+    });
+  </script>
+</body>
+
+</html>
