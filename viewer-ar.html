@@ -5,53 +5,74 @@
   <meta charset="UTF-8" />
   <title>AR Viewer</title>
 
-  <!-- A-Frame & AR.js -->
+  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/ar.js@3.3.2/aframe/build/aframe-ar.min.js"></script>
+
+  <!-- AR.js（A-Frame版） -->
+  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/3.3.2/aframe/build/aframe-ar.js"></script>
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
 </head>
 
-<body style="margin: 0; overflow: hidden;">
-  <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
-    <!-- ★カスタムマーカー（あなたの marker.patt）★ -->
-    <a-marker type="pattern" url="marker.patt">
-      <a-entity id="okMark" geometry="primitive: circle; radius: 0.5" material="color: green" visible="false">
+<body>
+
+  <!-- ===== ARシーン ===== -->
+  <a-scene embedded vr-mode-ui="enabled: false" arjs="sourceType: webcam; debugUIEnabled: false;">
+
+    <!-- ヒロマーカー -->
+    <a-marker preset="hiro">
+      <!-- OK（緑の丸） -->
+      <a-entity id="okMark" geometry="primitive: circle; radius: 0.5" material="color: green" position="0 0.5 0"
+        visible="false">
       </a-entity>
 
-      <a-entity id="ngMark" geometry="primitive: circle; radius: 0.5" material="color: red" visible="false">
+      <!-- NG（赤の丸） -->
+      <a-entity id="ngMark" geometry="primitive: circle; radius: 0.5" material="color: red" position="0 0.5 0"
+        visible="false">
       </a-entity>
     </a-marker>
 
     <a-entity camera></a-entity>
   </a-scene>
 
+
+  <!-- ===== Firebase処理 ===== -->
   <script>
     // Firebase設定
     const firebaseConfig = {
-      apiKey: "AIzaSy***",
-      authDomain: "talk-sign.firebaseapp.com",
+      apiKey: "AIzaSyBCBmEzgp94ik4BdrSW0gxN-JwtBHwdvVw",
+      authDomain: "kadaikenkyu-f09eb.firebaseapp.com",
       databaseURL: "https://kadaikenkyu-f09eb-default-rtdb.firebaseio.com/",
-      projectId: "talk-sign",
-      storageBucket: "talk-sign.appspot.com",
-      messagingSenderId: "1234567890",
-      appId: "1:1234567890:web:abcdefg123456"
+      projectId: "kadaikenkyu-f09eb",
+      storageBucket: "kadaikenkyu-f09eb.appspot.com",
+      messagingSenderId: "184071267716",
+      appId: "1:184071267716:web:072d0ed08d10b323882b4c"
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     const okMark = document.getElementById("okMark");
     const ngMark = document.getElementById("ngMark");
 
-    // 状態を Firebase から取得
+    // talkStatus を監視（"ok" or "ng"）
     db.ref("talkStatus").on("value", (snapshot) => {
       const val = snapshot.val();
+      console.log("Firebase 状態:", val);
+
       if (val === "ok") {
         okMark.setAttribute("visible", true);
         ngMark.setAttribute("visible", false);
-      } else {
+      } else if (val === "ng") {
         okMark.setAttribute("visible", false);
         ngMark.setAttribute("visible", true);
       }
