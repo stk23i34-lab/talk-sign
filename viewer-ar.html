@@ -2,47 +2,36 @@
 <html lang="ja">
 
 <head>
-  <meta charset="UTF-8">
-  <title>AR Viewer (Marker)</title>
-  <style>
-    body,
-    html {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      background: black;
-    }
+  <meta charset="UTF-8" />
+  <title>AR Viewer</title>
 
-    video,
-    canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-  </style>
-</head>
-
-<body>
-
-  <!-- カメラ映像 -->
-  <video id="camera" autoplay playsinline></video>
-
-  <!-- AR描画用 -->
-  <canvas id="arLayer"></canvas>
+  <!-- A-Frame & AR.js -->
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ar.js@3.3.2/aframe/build/aframe-ar.min.js"></script>
 
   <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+</head>
 
-  <!-- palanAR -->
-  <script src="https://cdn.jsdelivr.net/npm/palanar/dist/palanar.min.js"></script>
+<body style="margin: 0; overflow: hidden;">
+  <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+    <!-- ★カスタムマーカー（あなたの marker.patt）★ -->
+    <a-marker type="pattern" url="marker.patt">
+      <a-entity id="okMark" geometry="primitive: circle; radius: 0.5" material="color: green" visible="false">
+      </a-entity>
+
+      <a-entity id="ngMark" geometry="primitive: circle; radius: 0.5" material="color: red" visible="false">
+      </a-entity>
+    </a-marker>
+
+    <a-entity camera></a-entity>
+  </a-scene>
 
   <script>
-    // ===== Firebase設定 =====
+    // Firebase設定
     const firebaseConfig = {
-      apiKey: "AIzaSy***", // 自分の値に置き換えてください
+      apiKey: "AIzaSy***",
       authDomain: "talk-sign.firebaseapp.com",
       databaseURL: "https://kadaikenkyu-f09eb-default-rtdb.firebaseio.com/",
       projectId: "talk-sign",
@@ -53,54 +42,21 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // ===== カメラ映像取得 =====
-    const video = document.getElementById("camera");
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false })
-      .then(stream => video.srcObject = stream)
-      .catch(err => console.error("カメラ取得エラー:", err));
+    const okMark = document.getElementById("okMark");
+    const ngMark = document.getElementById("ngMark");
 
-    // ===== palanAR 初期化 =====
-    const canvas = document.getElementById("arLayer");
-    const ar = new PalanAR(canvas);
-
-    // アイコン画像
-    const circleImg = new Image();
-    circleImg.src = "circle.png"; // 丸アイコン
-    const crossImg = new Image();
-    crossImg.src = "cross.png";  // ばつアイコン
-
-    let currentStatus = "ok"; // デフォルト状態
-
-    // Firebaseから状態取得
-    db.ref('talkStatus').on('value', snapshot => {
-      currentStatus = snapshot.val(); // "ok" or "ng"
-    });
-
-    // ===== マーカー画像読み込み =====
-    const markerImg = new Image();
-    markerImg.src = "marker.png"; // 認識用マーカー画像
-
-    ar.addMarker(markerImg, {
-      onDetected: function (marker) {
-        // マーカーを認識したときに丸／ばつを表示
-        if (currentStatus === "ok") {
-          ar.drawImage(circleImg, marker.x, marker.y - 100, 100, 100); // マーカーの上に表示
-        } else {
-          ar.drawImage(crossImg, marker.x, marker.y - 100, 100, 100);
-        }
+    // 状態を Firebase から取得
+    db.ref("talkStatus").on("value", (snapshot) => {
+      const val = snapshot.val();
+      if (val === "ok") {
+        okMark.setAttribute("visible", true);
+        ngMark.setAttribute("visible", false);
+      } else {
+        okMark.setAttribute("visible", false);
+        ngMark.setAttribute("visible", true);
       }
     });
-
-    // ===== 描画ループ =====
-    function render() {
-      ar.clear();
-      ar.update(); // マーカー認識と描画
-      requestAnimationFrame(render);
-    }
-
-    render();
   </script>
-
 </body>
 
 </html>
