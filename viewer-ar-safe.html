@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>閲覧者用ページ（AR安全版）</title>
+
+  <!-- A-Frame -->
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+
+  <!-- AR.js -->
+  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/3.3.2/aframe/build/aframe-ar.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: black;
+    }
+
+    #loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 2em;
+      z-index: 10;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ローディング表示 -->
+  <div id="loading">カメラ起動中…</div>
+
+  <a-scene embedded vr-mode-ui="enabled: false" arjs="sourceType: webcam; debugUIEnabled: false;"
+    loading-screen="enabled: false">
+
+    <!-- ヒロマーカー -->
+    <a-marker preset="hiro" id="marker">
+      <!-- OK（緑の丸） -->
+      <a-entity id="okMark" geometry="primitive: circle; radius: 0.5" material="color: green" position="0 0.5 0"
+        visible="false"></a-entity>
+
+      <!-- NG（赤の丸） -->
+      <a-entity id="ngMark" geometry="primitive: circle; radius: 0.5" material="color: red" position="0 0.5 0"
+        visible="false"></a-entity>
+    </a-marker>
+
+    <a-entity camera></a-entity>
+  </a-scene>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase設定（control.htmlと同じノード名に合わせる）
+    const firebaseConfig = {
+      apiKey: "AIzaSyBCBmEzgp94ik4BdrSW0gxN-JwtBHwdvVw",
+      authDomain: "kadaikenkyu-f09eb.firebaseapp.com",
+      databaseURL: "https://kadaikenkyu-f09eb-default-rtdb.firebaseio.com",
+      projectId: "kadaikenkyu-f09eb",
+      storageBucket: "kadaikenkyu-f09eb.appspot.com",
+      messagingSenderId: "630288283837",
+      appId: "1:630288283837:web:bd2572959010b0e7c5dfd4",
+      measurementId: "G-J7WBZQVXSH"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const okMark = document.getElementById("okMark");
+    const ngMark = document.getElementById("ngMark");
+    const loading = document.getElementById("loading");
+    const marker = document.getElementById("marker");
+
+    // Firebaseの状態監視（control.htmlの「status/value」に合わせる）
+    db.ref("status/value").on("value", (snapshot) => {
+      const val = snapshot.val();
+      console.log("Firebase 状態:", val);
+
+      if (val === "ok") {
+        okMark.setAttribute("visible", true);
+        ngMark.setAttribute("visible", false);
+      } else if (val === "ng") {
+        okMark.setAttribute("visible", false);
+        ngMark.setAttribute("visible", true);
+      }
+    });
+
+    // マーカー認識イベント
+    marker.addEventListener("markerFound", () => {
+      console.log("マーカー認識");
+      loading.style.display = "none"; // ローディング非表示
+    });
+
+    marker.addEventListener("markerLost", () => {
+      console.log("マーカー消失");
+      loading.style.display = "block"; // マーカー消失時は再び表示
+      okMark.setAttribute("visible", false);
+      ngMark.setAttribute("visible", false);
+    });
+  </script>
+</body>
+
+</html>

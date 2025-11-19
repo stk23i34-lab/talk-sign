@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <title>話しかけサインコントロール</title>
   <style>
     body {
@@ -43,13 +43,13 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
 
-    // 🔧 Firebase設定を貼る
+    // 🔧 Firebase設定
     const firebaseConfig = {
       apiKey: "AIzaSyBCBmEzgp94ik4BdrSW0gxN-JwtBHwdvVw",
       authDomain: "kadaikenkyu-f09eb.firebaseapp.com",
       databaseURL: "https://kadaikenkyu-f09eb-default-rtdb.firebaseio.com",
       projectId: "kadaikenkyu-f09eb",
-      storageBucket: "kadaikenkyu-f09eb.firebasestorage.app",
+      storageBucket: "kadaikenkyu-f09eb.appspot.com",
       messagingSenderId: "630288283837",
       appId: "1:630288283837:web:bd2572959010b0e7c5dfd4",
       measurementId: "G-J7WBZQVXSH"
@@ -59,15 +59,15 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // OKボタンを押したら「status」を"ok"に更新
+    // OKボタンを押したら「status/value」を"ok"に更新
     document.getElementById("okBtn").onclick = () => {
-      set(ref(db, "status"), { value: "ok" });
+      set(ref(db, "status/value"), "ok");  // ← ノード名を viewer と統一
       alert("🟢 話しかけOKに設定しました！");
     };
 
-    // NGボタンを押したら「status」を"ng"に更新
+    // NGボタンを押したら「status/value」を"ng"に更新
     document.getElementById("ngBtn").onclick = () => {
-      set(ref(db, "status"), { value: "ng" });
+      set(ref(db, "status/value"), "ng");  // ← ノード名を viewer と統一
       alert("🔴 話しかけNGに設定しました！");
     };
   </script>
