@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <title>話しかけサインコントロール</title>
   <style>
     body {
@@ -29,21 +28,33 @@
     #ngBtn {
       background-color: #e74c3c;
     }
+
+    a {
+      display: block;
+      margin-top: 40px;
+      font-size: 1.2em;
+      color: #3498db;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
-
 <body>
-  <h1>話しかけサイン設定</h1>
+  <h1>話しかけサイン設定（管理者用）</h1>
   <p>現在の状態を選んでください👇</p>
   <button id="okBtn">🟢 話しかけOK</button>
   <button id="ngBtn">🔴 話しかけNG</button>
 
+  <h2>閲覧者用ページへのリンク</h2>
+  <a href="viewer-camera-ui.html" target="_blank">📱 利用者用ページを開く</a>
+
   <script type="module">
-    // Firebase SDKを読み込み
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
 
-    // 🔧 Firebase設定
     const firebaseConfig = {
       apiKey: "AIzaSyBCBmEzgp94ik4BdrSW0gxN-JwtBHwdvVw",
       authDomain: "kadaikenkyu-f09eb.firebaseapp.com",
@@ -55,22 +66,20 @@
       measurementId: "G-J7WBZQVXSH"
     };
 
-    // Firebaseを初期化
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // OKボタンを押したら「status/value」を"ok"に更新
+    // OKボタン
     document.getElementById("okBtn").onclick = () => {
-      set(ref(db, "status/value"), "ok");  // ← ノード名を viewer と統一
+      set(ref(db, "status/value"), "ok");
       alert("🟢 話しかけOKに設定しました！");
     };
 
-    // NGボタンを押したら「status/value」を"ng"に更新
+    // NGボタン
     document.getElementById("ngBtn").onclick = () => {
-      set(ref(db, "status/value"), "ng");  // ← ノード名を viewer と統一
+      set(ref(db, "status/value"), "ng");
       alert("🔴 話しかけNGに設定しました！");
     };
   </script>
 </body>
-
 </html>
