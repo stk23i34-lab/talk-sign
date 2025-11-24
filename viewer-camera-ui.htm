@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>閲覧者用ページ（Webカメラ版）</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: black;
+    }
+
+    /* カメラ映像を画面いっぱいに表示 */
+    #camera {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    /* ○×表示用 */
+    #status {
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 8em;
+      color: white;
+      text-shadow: 0 0 20px black;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* ローディング表示 */
+    #loading {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 2em;
+      z-index: 2;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="loading">カメラ起動中…</div>
+  <video id="camera" autoplay playsinline muted></video>
+  <div id="status">🔄</div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <script>
+    // 🔧 カメラ起動
+    const video = document.getElementById("camera");
+    const loading = document.getElementById("loading");
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+      .then(stream => {
+        video.srcObject = stream;
+        loading.style.display = "none"; // カメラ起動完了でローディング非表示
+      })
+      .catch(err => {
+        loading.textContent = "カメラを起動できません: " + err;
+      });
+
+    // 🔧 Firebase初期化
+    const firebaseConfig = {
+      apiKey: "AIzaSyBCBmEzgp94ik4BdrSW0gxN-JwtBHwdvVw",
+      authDomain: "kadaikenkyu-f09eb.firebaseapp.com",
+      databaseURL: "https://kadaikenkyu-f09eb-default-rtdb.firebaseio.com",
+      projectId: "kadaikenkyu-f09eb",
+      storageBucket: "kadaikenkyu-f09eb.appspot.com",
+      messagingSenderId: "630288283837",
+      appId: "1:630288283837:web:bd2572959010b0e7c5dfd4"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const statusEl = document.getElementById("status");
+
+    // 🔧 Firestore監視（control.htmlで書き込む status/value を参照）
+    db.ref("status/value").on("value", snapshot => {
+      const val = snapshot.val();
+      if (val === "ok") {
+        statusEl.textContent = "🟢 OK";
+      } else if (val === "ng") {
+        statusEl.textContent = "🔴 NG";
+      } else {
+        statusEl.textContent = "🔄"; // 初期状態
+      }
+    });
+  </script>
+
+</body>
+
+</html>
